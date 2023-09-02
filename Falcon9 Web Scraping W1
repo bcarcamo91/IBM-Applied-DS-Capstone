@@ -69,3 +69,138 @@ static_url = "https://en.wikipedia.org/w/index.php?title=List_of_Falcon_9_and_Fa
 
 #Using requests.get() method with the provided static_url and assigning response to an object
 r = requests.get(static_url)
+
+#Creating a beautiful soup object
+soup = BeautifulSoup(r.text, 'html.parser')
+
+#Print the page title to verify if the `BeautifulSoup` object was created properly 
+title = soup.find('title')
+print(title)
+
+#Use soup.title attribute to print the title
+print(soup.title)
+
+# Use the find_all function in the BeautifulSoup object, with element type `table`
+# Assign the result to a list called `html_tables`
+html_tables = soup.find_all('table')
+
+# Let's print the third table and check its content
+first_launch_table = html_tables[2]
+print(first_launch_table)
+
+column_names = []
+
+# Apply find_all() function with `th` element on first_launch_table
+size = first_launch_table.find_all('th')
+
+# Iterate each th element and apply the provided extract_column_from_header() to get a column name
+# Append the Non-empty column name (`if name is not None and len(name) > 0`) into a list called column_names
+for x in range(len(size)):
+    name = extract_column_from_header(size[x])
+    if (name is not None and len(name) > 0):
+        column_names.append(name)
+
+#Creating a data frame by parsing the launch HTML tables
+launch_dict= dict.fromkeys(column_names)
+
+# Remove an irrelvant column
+del launch_dict['Date and time ( )']
+
+# Let's initial the launch_dict with each value to be an empty list
+launch_dict['Flight No.'] = []
+launch_dict['Launch site'] = []
+launch_dict['Payload'] = []
+launch_dict['Payload mass'] = []
+launch_dict['Orbit'] = []
+launch_dict['Customer'] = []
+launch_dict['Launch outcome'] = []
+# Added some new columns
+launch_dict['Version Booster']=[]
+launch_dict['Booster landing']=[]
+launch_dict['Date']=[]
+launch_dict['Time']=[]
+
+#Simplifying the parsing process
+extracted_row = 0
+
+#Extract each table 
+for table_number,table in enumerate(soup.find_all('table',"wikitable plainrowheaders collapsible")):
+   # get table row 
+    for rows in table.find_all("tr"):
+        #check to see if first table heading is as number corresponding to launch a number 
+        if rows.th:
+            if rows.th.string:
+                flight_number=rows.th.string.strip()
+                flag=flight_number.isdigit()
+        else:
+            flag=False
+        
+        #get table element 
+        row=rows.find_all('td')
+        
+        #if it is number save cells in a dictonary 
+        if flag:
+            extracted_row += 1
+            # Flight Number value
+            # TODO: Append the flight_number into launch_dict with key `Flight No.`
+            #print(flight_number)
+            datatimelist=date_time(row[0])
+            
+            # Date value
+            # TODO: Append the date into launch_dict with key `Date`
+            date = datatimelist[0].strip(',')
+            #print(date)
+            
+            # Time value
+            # TODO: Append the time into launch_dict with key `Time`
+            time = datatimelist[1]
+            #print(time)
+              
+            # Booster version
+            # TODO: Append the bv into launch_dict with key `Version Booster`
+            bv=booster_version(row[1])
+            if not(bv):
+                bv=row[1].a.string
+            print(bv)
+            
+            # Launch Site
+            # TODO: Append the bv into launch_dict with key `Launch Site`
+            launch_site = row[2].a.string
+            #print(launch_site)
+            
+            # Payload
+            # TODO: Append the payload into launch_dict with key `Payload`
+            payload = row[3].a.string
+            #print(payload)
+            
+            # Payload Mass
+            # TODO: Append the payload_mass into launch_dict with key `Payload mass`
+            payload_mass = get_mass(row[4])
+            #print(payload)
+            
+            # Orbit
+            # TODO: Append the orbit into launch_dict with key `Orbit`
+            orbit = row[5].a.string
+            #print(orbit)
+            
+            # Customer
+            # TODO: Append the customer into launch_dict with key `Customer`
+            customer = row[6].a.string
+            #print(customer)
+            
+            # Launch outcome
+            # TODO: Append the launch_outcome into launch_dict with key `Launch outcome`
+            launch_outcome = list(row[7].strings)[0]
+            #print(launch_outcome)
+            
+            # Booster landing
+            # TODO: Append the launch_outcome into launch_dict with key `Booster landing`
+            booster_landing = landing_status(row[8])
+            #print(booster_landing)
+
+#Creating a data frame into launch_dict
+df=pd.DataFrame(launch_dict)
+
+#Saving the file to a csv
+df.to_csv('spacx_web_scrfaped.csv', index=False)
+            
