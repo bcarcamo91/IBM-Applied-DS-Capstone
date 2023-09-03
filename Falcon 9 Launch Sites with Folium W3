@@ -16,7 +16,7 @@ resp = await fetch(URL)
 spacex_csv_file = io.BytesIO((await resp.arrayBuffer()).to_py())
 spacex_df=pd.read_csv(spacex_csv_file)
 
-#Selecting relevant sub-columns
+#Select relevant sub-columns
 spacex_df = spacex_df[['Launch Site', 'Lat', 'Long', 'class']]
 launch_sites_df = spacex_df.groupby(['Launch Site'], as_index=False).first()
 launch_sites_df = launch_sites_df[['Launch Site', 'Lat', 'Long']]
@@ -26,10 +26,10 @@ launch_sites_df
 nasa_coordinate = [29.559684888503615, -95.0830971930759]
 site_map = folium.Map(location=nasa_coordinate, zoom_start=10)
 
-#Creating a blue circle at NASA Johnson Space Center's coordinate with a popup label showing its name
+#Create a blue circle at NASA Johnson Space Center's coordinate with a popup label showing its name
 circle = folium.Circle(nasa_coordinate, radius=1000, color='#d35400', fill=True).add_child(folium.Popup('NASA Johnson Space Center'))
 
-#Creating a blue circle at NASA Johnson Space Center's coordinate with a icon showing its name
+#Create a blue circle at NASA Johnson Space Center's coordinate with a icon showing its name
 marker = folium.map.Marker(
     nasa_coordinate,
     icon=DivIcon(
@@ -41,10 +41,10 @@ marker = folium.map.Marker(
 site_map.add_child(circle)
 site_map.add_child(marker)
 
-# Initial the map
+#Initialize folium map
 site_map = folium.Map(location=nasa_coordinate, zoom_start=5)
 
-# Adding a circle object for each launch site based on its coordinate (Lat, Long) values. In addition, add Launch site name as a popup label
+#Adding a circle object for each launch site based on its coordinate (Lat, Long) values. In addition, add Launch site name as a popup label
 
 #Coordinates for circles
 CCAFS_LC_40 = [28.562302, -80.577356]
@@ -58,7 +58,6 @@ circle2 = folium.Circle(CCAFS_SLC_40, radius=1000, color='#d35400', fill=True).a
 circle3 = folium.Circle(KSC_LC_39A, radius=1000, color='#d35400', fill=True).add_child(folium.Popup('KSC_LC_39A'))
 circle4 = folium.Circle(VAFB_SLC_4E, radius=1000, color='#d35400', fill=True).add_child(folium.Popup('VAFB_SLC_4E'))
 
-##Create 4 markers, one for each launch site
 #Marker 1
 marker1 = folium.map.Marker(
     CCAFS_LC_40,
@@ -123,7 +122,7 @@ for x in range(len(spacex_df1)):
     x = x+1
 
 
-#Adding markers to map
+#Add markers to map
 site_map.add_child(marker_cluster)
 
 x=1
@@ -140,8 +139,10 @@ for x in range(len(spacex_df1)):
     site_map.add_child(marker_1)
     marker_cluster.add_child(marker_1)
 
-#Calculating distances between launch sites and proximities
-##Adding Mouse Position to get the coordinate (Lat, Long) for a mouse over on the map
+#Calculate distances between launch sites and proximities
+
+#Add Mouse Position to get the coordinate (Lat, Long) for a mouse over on the map
+
 formatter = "function(num) {return L.Util.formatNum(num, 5);};"
 mouse_position = MousePosition(
     position='topright',
@@ -157,7 +158,7 @@ mouse_position = MousePosition(
 site_map.add_child(mouse_position)
 site_map
 
-#Write a function that returns the dsitance from launch site to proximity
+#Return the dsitance from launch site to proximity
 from math import sin, cos, sqrt, atan2, radians
 
 def calculate_distance(lat1, lon1, lat2, lon2):
@@ -176,5 +177,3 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 
     distance = R * c
     return distance
-
-    
