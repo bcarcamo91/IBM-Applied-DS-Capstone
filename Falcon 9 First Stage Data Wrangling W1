@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 
-#Data Analysis
+#Pull data set
 from js import fetch
 import io
 
@@ -10,33 +10,33 @@ URL = 'https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBM-DS
 resp = await fetch(URL)
 dataset_part_1_csv = io.BytesIO((await resp.arrayBuffer()).to_py())
 
-#Loading data set
+#Load data set into df
 df=pd.read_csv(dataset_part_1_csv)
 df.head(10)
 
-#Calculating percentage of missing values in each attribute
+#Calculate percentage of missing values in each attribute
 df.isnull().sum()/df.shape[0]*100
 
-#Check the types of each variable
+#Check variable type
 df.dtypes
 
-#Calculating the number of launches on each site
+#Calculate the number of launches on each site
 df['LaunchSite'].value_counts()
 
-#Calculating the number and occurrence of each orbit
+#Calculate the number and occurrence of each orbit
 df['Orbit'].value_counts()
 
-#Calculating the number and occurrence of missiong outcome per orbit type
+#Calculate the number and occurrence of missing outcome per orbit type
 landing_outcomes = df['Outcome'].value_counts()
 print(landing_outcomes)
 for i,outcome in enumerate(landing_outcomes.keys()):
     print(i,outcome)
 
-#Creating a set of outcomes where the second stage did not land succesfully
+#Create a set of outcomes where the second stage did not land succesfully
 bad_outcomes=set(landing_outcomes.keys()[[1,3,5,6,7]])
 bad_outcomes
 
-#Creating a landing outcome label from Outcome column
+#Create a landing outcome label from Outcome column
 #landing_class = 0 if bad_outcome
 #landing_class = 1 otherwise
 landing_class = []
@@ -49,4 +49,5 @@ for key,value in df["Outcome"].items():
 df['Class']=landing_class
 df[['Class']].head(8)
 
+#Save file to CSV
 df.to_csv("dataset_part_2.csv", index=False)
